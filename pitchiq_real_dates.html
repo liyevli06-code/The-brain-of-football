@@ -1,0 +1,632 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g1:#1a7a3c;--g2:#22a050;--g3:#2ecc6b;--g4:#e8f8ef;--g5:#f0faf5;
+  --txt:#0f1f14;--txt2:#3d6b4f;--txt3:#7aaa86;
+  --bdr:#c8e8d4;--bdr2:#a0d4b5;
+  --wht:#ffffff;--sfc:#f5fbf7;
+  --red:#d63031;--amber:#e67e22;--blue:#2980b9;
+  --mono:'JetBrains Mono',monospace;--ui:'Outfit',sans-serif;
+}
+#app{font-family:var(--ui);background:#fff;color:var(--txt)}
+.hdr{background:var(--g1);padding:14px 16px 0}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-icon{width:34px;height:34px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.logo-icon i{color:var(--g1);font-size:18px}
+.logo-txt{font-size:20px;font-weight:700;color:#fff;letter-spacing:1px}
+.logo-txt span{color:#a8ffc8}
+.lang-toggle{display:flex;background:rgba(255,255,255,0.15);border-radius:20px;padding:3px;gap:2px}
+.lang-btn{padding:4px 10px;border-radius:16px;border:none;font-family:var(--ui);font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;color:rgba(255,255,255,0.7);background:transparent}
+.lang-btn.active{background:#fff;color:var(--g1)}
+.season-info{background:rgba(0,0,0,0.15);border-radius:8px;padding:6px 12px;margin-bottom:10px;font-size:11px;color:rgba(255,255,255,0.85);display:flex;align-items:center;gap:6px}
+.season-info i{font-size:13px}
+.date-scroll{display:flex;gap:6px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none}
+.date-scroll::-webkit-scrollbar{display:none}
+.date-chip{flex:0 0 auto;padding:6px 10px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.65);font-size:11px;font-weight:500;cursor:pointer;transition:all .2s;text-align:center;min-width:46px}
+.date-chip.active{background:#fff;border-color:#fff;color:var(--g1);font-weight:600}
+.date-chip.has-match{border-color:rgba(255,255,255,0.6);color:rgba(255,255,255,0.95)}
+.date-chip:hover:not(.active){background:rgba(255,255,255,0.1)}
+.date-chip .dc-day{font-size:9px;display:block;opacity:.8}
+.main{padding:12px 14px 20px}
+.section-hdr{display:flex;align-items:center;gap:8px;margin:10px 0 10px;font-size:11px;font-weight:600;color:var(--txt2);letter-spacing:1px;text-transform:uppercase}
+.section-hdr i{color:var(--g2);font-size:14px}
+.section-hdr::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.empty-day{text-align:center;padding:28px 16px;color:var(--txt3)}
+.empty-day i{font-size:32px;display:block;margin-bottom:8px;color:var(--bdr2)}
+.empty-day p{font-size:13px}
+.empty-day small{font-size:11px;display:block;margin-top:4px;color:var(--bdr2)}
+.match-card{background:var(--wht);border:1px solid var(--bdr);border-radius:14px;margin-bottom:10px;overflow:hidden;cursor:pointer;transition:border-color .2s}
+.match-card:hover{border-color:var(--g2)}
+.match-card.active{border-color:var(--g2);border-width:1.5px}
+.match-card.friendly{border-left:3px solid var(--amber)}
+.mc-top{padding:9px 14px;display:flex;align-items:center;justify-content:space-between}
+.mc-league{font-size:10px;font-weight:600;color:var(--g2);letter-spacing:1px;text-transform:uppercase;background:var(--g4);padding:3px 8px;border-radius:4px}
+.mc-league.friendly-badge{color:#b7750a;background:#fef3dc}
+.mc-league.intl-badge{color:#1a5276;background:#d6eaf8}
+.mc-time{font-family:var(--mono);font-size:11px;color:var(--txt3)}
+.mc-date-full{font-size:10px;color:var(--txt3);font-family:var(--mono)}
+.mc-body{padding:8px 14px 12px;display:flex;align-items:center;gap:8px}
+.mc-team{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.mc-team-name{font-size:13px;font-weight:600;color:var(--txt);text-align:center;line-height:1.2}
+.mc-team-form{display:flex;gap:2px}
+.ff{width:16px;height:16px;border-radius:3px;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:var(--mono)}
+.ff.W{background:#dcfbec;color:#1a7a3c}
+.ff.D{background:#fef3dc;color:#b7750a}
+.ff.L{background:#fde8e8;color:#b91c1c}
+.ff.N{background:#f0f0f0;color:#888}
+.mc-score-box{flex:0 0 66px;text-align:center}
+.mc-score{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--g1);line-height:1}
+.mc-vs{font-size:11px;color:var(--txt3);letter-spacing:1px}
+.mc-footer{background:var(--sfc);border-top:1px solid var(--bdr);padding:7px 14px;display:flex;align-items:center;justify-content:space-between}
+.mc-odds{display:flex;gap:5px}
+.odd-chip{font-family:var(--mono);font-size:10px;color:var(--txt2);background:#fff;border:1px solid var(--bdr);border-radius:5px;padding:2px 6px}
+.mc-ai-badge{font-size:10px;font-weight:600;color:var(--g1);background:var(--g4);border:1px solid var(--bdr2);border-radius:10px;padding:2px 8px;display:flex;align-items:center;gap:3px}
+.mc-ai-badge i{font-size:11px}
+.no-odds{font-size:10px;color:var(--txt3);font-style:italic}
+.detail-panel{background:var(--sfc);border:1.5px solid var(--g2);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.dtabs{display:flex;border-bottom:1px solid var(--bdr);background:#fff}
+.dtab{flex:1;padding:9px 2px;text-align:center;font-size:10px;font-weight:500;color:var(--txt3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.dtab.active{color:var(--g1);border-bottom-color:var(--g1);font-weight:600}
+.dp-body{padding:14px}
+.oracle-title{font-size:13px;font-weight:700;color:var(--g1);display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.oracle-sub{font-size:11px;color:var(--txt3);margin-bottom:12px;font-family:var(--mono)}
+.conf-badge{display:inline-flex;align-items:center;gap:5px;background:var(--g4);border:1px solid var(--bdr2);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;color:var(--g1);margin-bottom:14px}
+.prob-track{height:44px;border-radius:10px;overflow:hidden;display:flex;margin-bottom:8px}
+.prob-seg{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;transition:flex 1.2s}
+.prob-seg.ph{background:#1a7a3c;color:#fff;border-radius:10px 0 0 10px}
+.prob-seg.pd{background:#d4a017;color:#fff}
+.prob-seg.pa{background:#c0392b;color:#fff;border-radius:0 10px 10px 0}
+.prob-lbls{display:flex;justify-content:space-between;margin-bottom:14px}
+.pl{text-align:center;font-size:11px;color:var(--txt3)}
+.pl-pct{font-size:17px;font-weight:700;display:block}
+.pl.ph .pl-pct{color:var(--g1)}
+.pl.pd .pl-pct{color:#b7750a}
+.pl.pa .pl-pct{color:var(--red)}
+.analysis-box{background:#fff;border:1px solid var(--bdr);border-radius:10px;padding:12px;margin-bottom:12px}
+.analysis-lbl{font-size:10px;font-weight:600;color:var(--g2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+.analysis-txt{font-size:12px;color:var(--txt2);line-height:1.65}
+.analysis-txt strong{color:var(--txt);font-weight:600}
+.models-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.model-chip{display:flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--bdr);border-radius:7px;padding:4px 8px;font-size:10px;color:var(--txt2)}
+.model-vote{font-size:10px;padding:1px 5px;border-radius:3px;font-weight:700;font-family:var(--mono)}
+.vote-H{background:#dcfbec;color:#1a7a3c}
+.vote-D{background:#fef3dc;color:#b7750a}
+.vote-A{background:#fde8e8;color:#b91c1c}
+.form-lbl{font-size:11px;font-weight:600;color:var(--txt2);margin-bottom:5px}
+.form-row{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.form-name{font-size:12px;font-weight:600;color:var(--txt);min-width:62px}
+.form-dots{display:flex;gap:3px}
+.fd2{width:22px;height:22px;border-radius:5px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:var(--mono)}
+.fd2.W{background:#dcfbec;color:#1a7a3c}.fd2.D{background:#fef3dc;color:#b7750a}.fd2.L{background:#fde8e8;color:#b91c1c}.fd2.N{background:#f0f0f0;color:#888}
+.pts-row{display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.pts-trk{flex:1;height:5px;background:var(--bdr);border-radius:3px;overflow:hidden}
+.pts-fill{height:100%;border-radius:3px}
+.pts-lbl{font-family:var(--mono);font-size:10px;color:var(--txt3);min-width:28px;text-align:right}
+.stat-r{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.stat-lbl{font-size:11px;color:var(--txt3);min-width:70px}
+.stat-bw{flex:1;height:5px;background:var(--bdr);border-radius:3px;overflow:hidden}
+.stat-bf{height:100%;border-radius:3px}
+.stat-val{font-family:var(--mono);font-size:11px;min-width:26px;text-align:right}
+.stat-section-title{font-size:11px;font-weight:600;color:var(--txt2);margin:10px 0 6px;padding-top:10px;border-top:1px solid var(--bdr)}
+.inj-list{display:flex;flex-direction:column;gap:7px}
+.inj-item{display:flex;align-items:center;gap:8px;border-radius:8px;padding:8px 10px;border-left:3px solid}
+.inj-item.high{background:#fdf4f4;border-color:var(--red)}
+.inj-item.med{background:#fefbf0;border-color:var(--amber)}
+.inj-item.low{background:var(--sfc);border-color:var(--bdr2)}
+.inj-name{font-size:13px;font-weight:600;color:var(--txt);flex:1}
+.inj-pos{font-size:10px;color:var(--txt3);display:block}
+.inj-badge{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:600;font-family:var(--mono)}
+.inj-badge.high{background:#fde8e8;color:var(--red)}
+.inj-badge.med{background:#fef3dc;color:#b7750a}
+.inj-badge.low{background:var(--g4);color:var(--g1)}
+.inj-section{font-size:11px;font-weight:600;color:var(--txt2);margin:10px 0 6px;padding-top:10px;border-top:1px solid var(--bdr)}
+.inj-section:first-of-type{margin-top:0;padding-top:0;border-top:none}
+.player-r{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid var(--bdr)}
+.player-r:last-child{border-bottom:none}
+.pl-num{font-family:var(--mono);font-size:11px;color:var(--txt3);min-width:22px;text-align:center}
+.pl-name{font-size:12px;color:var(--txt);flex:1}
+.pl-pos{font-size:9px;font-weight:600;padding:2px 5px;border-radius:3px;background:var(--g4);color:var(--g1)}
+.pl-cap{font-size:10px;color:#b7750a}
+.lineup-title{font-size:11px;font-weight:700;color:var(--g1);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid var(--g2)}
+.lineup-sub{margin-top:14px}
+.odds-row{display:flex;gap:7px;margin-top:10px}
+.odd-big{flex:1;background:var(--sfc);border:1px solid var(--bdr);border-radius:10px;padding:9px;text-align:center}
+.odd-big-lbl{font-size:10px;color:var(--txt3);margin-bottom:3px}
+.odd-big-val{font-family:var(--mono);font-size:17px;font-weight:700}
+.odd-big.oh .odd-big-val{color:var(--g1)}
+.odd-big.od .odd-big-val{color:#b7750a}
+.odd-big.oa .odd-big-val{color:var(--red)}
+.friendly-note{background:#fef9ec;border:1px solid #f5d88e;border-radius:8px;padding:10px 12px;font-size:12px;color:#7a5a00;display:flex;gap:8px;align-items:flex-start}
+.friendly-note i{font-size:14px;margin-top:1px;flex-shrink:0}
+</style>
+
+<h2 class="sr-only">PitchIQ — İyun-İyul 2026 real oyun cədvəli, Azərbaycan və İngilis dil dəstəyi</h2>
+
+<div id="app">
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="logo">
+      <div class="logo-icon"><i class="ti ti-ball-football" aria-hidden="true"></i></div>
+      <div class="logo-txt">Pitch<span>IQ</span></div>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('az')">AZ</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+  <div class="season-info" id="seasonInfo">
+    <i class="ti ti-info-circle" aria-hidden="true"></i>
+    <span id="seasonTxt">2025/26 mövsüm bitib • Yeni mövsüm: 7 İyul 2026</span>
+  </div>
+  <div class="date-scroll" id="dateBar"></div>
+</div>
+<div class="main">
+  <div class="section-hdr">
+    <i class="ti ti-calendar-event" aria-hidden="true"></i>
+    <span id="sh-label">İyun – İyul 2026 oyunları</span>
+  </div>
+  <div id="matchList"></div>
+  <div id="detailPanel" style="display:none"></div>
+</div>
+</div>
+
+<script>
+const T={
+  az:{
+    seasonEnd:'2025/26 mövsüm bitib • Yeni mövsüm: 7 İyul 2026',
+    sectionLabel:'İyun – İyul 2026 oyunları',
+    friendlyNote:'Bu dostluq oyunudur. Rəsmi nəticə statistikaya daxil deyil.',
+    preseason:'Mövsüm öncəsi',
+    friendly:'Dostluq',
+    intl:'Millilər',
+    noMatch:'Bu tarixdə oyun yoxdur',
+    noMatchSub:'Yaxın tarixə baxmaq üçün sol/sağ sürüşdürün',
+    home:'Ev sahibi',away:'Qonaq',draw:'Bərabər',
+    oracle:'AI Proqnoz Orakulu',aiSub:'AI modelləri toplanır',
+    models:'Model bölünməsi',analysis:'AI Konsensus Analizi',
+    form:'Son 5 oyun forması',homePerf:'Ev sahibi statistikası',awayPerf:'Qonaq statistikası',
+    injuries:'Zədələr və cəzalar',lineups:'Heyətlər',stats:'Statistika',
+    avgGoals:'Ort. Qol',possession:'Top sahəsi',xg:'xG / Oyun',cs:'Qol yoxluğu',
+    highConf:'Yüksək dəqiqlik',medConf:'Orta dəqiqlik',
+    noOdds:'Əmsallar hələ açıqlanmayıb',
+    aiTab:'AI Orakul',statsTab:'Statistika',lineupsTab:'Heyətlər',injTab:'Zədələr',
+    noAbsence:'Yoxluq bildirimi yoxdur',
+    noPred:'Bu oyun üçün AI proqnozu mövcud deyil',
+    noPredSub:'Mövsüm öncəsi dostluq oyunları üçün rəsmi analiz edilmir.',
+  },
+  en:{
+    seasonEnd:'2025/26 season ended • New season starts: 7 July 2026',
+    sectionLabel:'June – July 2026 fixtures',
+    friendlyNote:'This is a friendly match. Result does not count in official statistics.',
+    preseason:'Pre-season',
+    friendly:'Friendly',
+    intl:'International',
+    noMatch:'No matches on this date',
+    noMatchSub:'Swipe left or right to find fixture dates',
+    home:'Home',away:'Away',draw:'Draw',
+    oracle:'AI Consensus Oracle',aiSub:'Aggregating AI models',
+    models:'Model breakdown',analysis:'AI Consensus Analysis',
+    form:'Last 5 matches form',homePerf:'Home performance',awayPerf:'Away performance',
+    injuries:'Injuries & suspensions',lineups:'Lineups',stats:'Statistics',
+    avgGoals:'Avg Goals',possession:'Possession',xg:'xG / Match',cs:'Clean Sheets',
+    highConf:'High accuracy',medConf:'Medium accuracy',
+    noOdds:'Odds not yet available',
+    aiTab:'AI Oracle',statsTab:'Statistics',lineupsTab:'Lineups',injTab:'Injuries',
+    noAbsence:'No reported absences',
+    noPred:'No AI prediction for this match',
+    noPredSub:'Pre-season friendlies are not officially analysed.',
+  }
+};
+let lang='az';
+const t=k=>T[lang][k]||k;
+
+const today=new Date('2026-06-07');
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function fmt(d){return d.toISOString().slice(0,10)}
+function dayNameShort(d,l){return d.toLocaleDateString(l==='az'?'az-AZ':'en-US',{weekday:'short'})}
+function dayNum(d){return d.getDate()}
+
+const DAYS=Array.from({length:32},(_,i)=>addDays(today,i));
+
+const MATCHES=[
+  {
+    id:1,date:'2026-06-13',
+    type:'friendly',
+    league:{az:'Real Madrid Legends – Dostluq',en:'Real Madrid Legends – Friendly'},
+    home:{name:{az:'R. Madrid Legends',en:'RM Legends'},short:'RML',form:['N','N','N','N','N']},
+    away:{name:{az:'Inter Legends',en:'Inter Legends'},short:'IML',form:['N','N','N','N','N']},
+    time:'12:00',venue:{az:'Bernabéu, Madrid',en:'Bernabéu, Madrid'},
+    odds:null,ai:null,
+    analysis:null,
+    homeStats:null,awayStats:null,
+    homeLineup:[
+      {n:1,nm:'Casillas',p:'GK',cap:true},{n:3,nm:'Roberto Carlos',p:'LB'},{n:4,nm:'Sergio Ramos',p:'CB'},
+      {n:5,nm:'Pepe',p:'CB'},{n:2,nm:'Salgado',p:'RB'},{n:8,nm:'Beckham',p:'CM'},
+      {n:14,nm:'Guti',p:'CM'},{n:10,nm:'Zidane',p:'SS'},{n:7,nm:'Raúl',p:'RW'},
+      {n:9,nm:'Morientes',p:'ST'},{n:11,nm:'Figo',p:'LW'}
+    ],
+    awayLineup:[
+      {n:1,nm:'Toldo',p:'GK',cap:true},{n:2,nm:'Zanetti',p:'RB'},{n:5,nm:'Materazzi',p:'CB'},
+      {n:6,nm:'Favalli',p:'CB'},{n:3,nm:'Candela',p:'LB'},{n:8,nm:'Recoba',p:'CM'},
+      {n:4,nm:'Vieri',p:'ST'},{n:10,nm:'Ronaldo (Braz)',p:'ST'},{n:7,nm:'Seedorf',p:'CM'},
+      {n:11,nm:'Adriano',p:'LW'},{n:9,nm:'Crespo',p:'ST'}
+    ],
+    injuries:{home:[],away:[]}
+  },
+  {
+    id:2,date:'2026-06-14',
+    type:'intl',
+    league:{az:'Millilər — Hazırlıq oyunu',en:'International — Friendly'},
+    home:{name:{az:'Fransa',en:'France'},short:'FRA',form:['W','W','D','W','W']},
+    away:{name:{az:'İspaniya',en:'Spain'},short:'ESP',form:['W','W','W','D','W']},
+    time:'21:00',venue:{az:'Stade de France, Paris',en:'Stade de France, Paris'},
+    odds:{h:'2.50',d:'3.20',a:'2.80'},
+    ai:{home:38,draw:26,away:36,conf:'med'},
+    analysis:{
+      az:'<strong>Fransa vs İspaniya</strong> — son Millətlər Liqası finalının qisası! İspaniyalı Yamal (18) Fransanın müdafiəsini sınaqdan keçirəcək. Mbappe ev meydanında xüsusi motivasiyalıdır, lakin İspaniya davamlı olaraq yüksək pressə cavab verə bilir.',
+      en:'<strong>France vs Spain</strong> — revenge match after the Nations League final! Spain\'s Yamal (18) will test France\'s defence. Mbappé has special motivation at home, but Spain consistently responds well to high pressing.'
+    },
+    models:[{name:'Opta AI',vote:'D'},{name:'StatsBomb',vote:'A'},{name:'FBref ML',vote:'H'},{name:'xG Oracle',vote:'D'},{name:'Betfair ML',vote:'A'}],
+    homeStats:[{k:'avgGoals',v:'2.2',p:73},{k:'possession',v:'57%',p:57},{k:'xg',v:'2.0',p:67},{k:'cs',v:'50%',p:50}],
+    awayStats:[{k:'avgGoals',v:'2.4',p:80},{k:'possession',v:'62%',p:62},{k:'xg',v:'2.2',p:73},{k:'cs',v:'55%',p:55}],
+    homeLineup:[
+      {n:1,nm:'Maignan',p:'GK'},{n:2,nm:'Koundé',p:'RB'},{n:5,nm:'Upamecano',p:'CB'},
+      {n:21,nm:'Lucas Digne',p:'LB'},{n:4,nm:'Konaté',p:'CB'},{n:8,nm:'Tchouaméni',p:'DM'},
+      {n:13,nm:'Camavinga',p:'CM'},{n:14,nm:'Rabiot',p:'CM'},{n:7,nm:'Griezmann',p:'SS'},
+      {n:9,nm:'Giroud',p:'ST'},{n:10,nm:'Mbappé',p:'LW',cap:true}
+    ],
+    awayLineup:[
+      {n:1,nm:'Unai Simón',p:'GK'},{n:2,nm:'Carvajal',p:'RB'},{n:5,nm:'Laporte',p:'CB'},
+      {n:24,nm:'Le Normand',p:'CB'},{n:3,nm:'Grimaldo',p:'LB'},{n:16,nm:'Rodri',p:'DM'},
+      {n:6,nm:'Gavi',p:'CM'},{n:8,nm:'Pedri',p:'CM'},{n:11,nm:'Yamal',p:'RW'},
+      {n:9,nm:'Morata',p:'ST',cap:true},{n:17,nm:'Oyarzabal',p:'LW'}
+    ],
+    injuries:{
+      home:[{nm:'Benzema',pos:{az:'Forvard',en:'Striker'},lvl:'high',type:{az:'Milliyə çağırılmayıb',en:'Not called up'}},{nm:'Pavard',pos:{az:'Müdafiəçi',en:'Defender'},lvl:'med',type:{az:'Zədəli',en:'Injured'}}],
+      away:[{nm:'Dani Olmo',pos:{az:'Yarımmüdafiəçi',en:'Midfielder'},lvl:'med',type:{az:'Zədəli',en:'Injured'}}]
+    }
+  },
+  {
+    id:3,date:'2026-06-16',
+    type:'intl',
+    league:{az:'Millilər — Hazırlıq oyunu',en:'International — Friendly'},
+    home:{name:{az:'Almaniya',en:'Germany'},short:'GER',form:['W','D','W','W','L']},
+    away:{name:{az:'Portuqaliya',en:'Portugal'},short:'POR',form:['W','W','W','D','W']},
+    time:'20:45',venue:{az:'Allianz Arena, Münhen',en:'Allianz Arena, Munich'},
+    odds:{h:'2.40',d:'3.30',a:'2.90'},
+    ai:{home:40,draw:24,away:36,conf:'med'},
+    analysis:{
+      az:'<strong>Almaniya-Portuqaliya</strong> — iki güclü millinin hazırlıq toqquşması. Portuqaliyanın <strong>Bruno Fernandes + Rafael Leão</strong> kombinasiyası Almaniyanın orta xəttinə qarşı. Kane-siz Almaniya hücumda fərqli görünür.',
+      en:'<strong>Germany vs Portugal</strong> — a heavyweight pre-tournament friendly. Portugal\'s <strong>Bruno Fernandes + Rafael Leão</strong> combination against Germany\'s midfield. Germany look different without a clear No.9.'
+    },
+    models:[{name:'Opta AI',vote:'A'},{name:'StatsBomb',vote:'H'},{name:'FBref ML',vote:'D'},{name:'xG Oracle',vote:'A'},{name:'Betfair ML',vote:'D'}],
+    homeStats:[{k:'avgGoals',v:'1.9',p:63},{k:'possession',v:'58%',p:58},{k:'xg',v:'1.8',p:60},{k:'cs',v:'45%',p:45}],
+    awayStats:[{k:'avgGoals',v:'2.3',p:77},{k:'possession',v:'56%',p:56},{k:'xg',v:'2.1',p:70},{k:'cs',v:'52%',p:52}],
+    homeLineup:[
+      {n:1,nm:'ter Stegen',p:'GK'},{n:4,nm:'Tah',p:'CB'},{n:5,nm:'Schlotterbeck',p:'CB'},
+      {n:3,nm:'Raum',p:'LB'},{n:2,nm:'Kimmich',p:'RB'},{n:6,nm:'Andrich',p:'DM'},
+      {n:8,nm:'Kroos',p:'CM',cap:true},{n:14,nm:'Musiala',p:'CM'},{n:10,nm:'Havertz',p:'SS'},
+      {n:7,nm:'Gnabry',p:'RW'},{n:11,nm:'Wirtz',p:'LW'}
+    ],
+    awayLineup:[
+      {n:1,nm:'Diogo Costa',p:'GK'},{n:2,nm:'João Cancelo',p:'RB'},{n:3,nm:'Pepe',p:'CB'},
+      {n:6,nm:'Rúben Dias',p:'CB'},{n:5,nm:'Nuno Mendes',p:'LB'},{n:8,nm:'William Carvalho',p:'DM'},
+      {n:16,nm:'Bruno Fernandes',p:'CM',cap:true},{n:23,nm:'Vitinha',p:'CM'},
+      {n:17,nm:'Rafael Leão',p:'LW'},{n:9,nm:'Gonçalo Ramos',p:'ST'},{n:7,nm:'Bernardo',p:'RW'}
+    ],
+    injuries:{
+      home:[{nm:'Gündoğan',pos:{az:'Yarımmüdafiəçi',en:'Midfielder'},lvl:'med',type:{az:'Zədəli',en:'Injured'}}],
+      away:[{nm:'Cristiano Ronaldo',pos:{az:'Forvard',en:'Striker'},lvl:'high',type:{az:'Milliyə çağırılmayıb',en:'Not called up'}}]
+    }
+  },
+  {
+    id:4,date:'2026-06-18',
+    type:'intl',
+    league:{az:'Millilər — Hazırlıq oyunu',en:'International — Friendly'},
+    home:{name:{az:'Braziliya',en:'Brazil'},short:'BRA',form:['W','D','W','W','D']},
+    away:{name:{az:'Argentina',en:'Argentina'},short:'ARG',form:['W','W','W','W','D']},
+    time:'22:00',venue:{az:'MetLife Stadium, New Jersey',en:'MetLife Stadium, New Jersey'},
+    odds:{h:'2.80',d:'3.10',a:'2.50'},
+    ai:{home:32,draw:28,away:40,conf:'high'},
+    analysis:{
+      az:'<strong>Klassiko! Braziliya – Argentina</strong> — Messi\'nin son yüksək profilli matçlarından biri. Mbappe öz milli komandası ilə eyni vaxtda oynayacaq. Argentinada Messi + Alvarez kombinasiyası həlledicidir. Braziliya Vinícius Jr olmadan daha az yaradıcıdır.',
+      en:'<strong>Superclásico! Brazil vs Argentina</strong> — one of Messi\'s high-profile final appearances. Argentina\'s Messi + Alvarez combination is decisive. Brazil are less creative without Vinícius Jr in full form.'
+    },
+    models:[{name:'Opta AI',vote:'A'},{name:'StatsBomb',vote:'A'},{name:'FBref ML',vote:'D'},{name:'xG Oracle',vote:'A'},{name:'Betfair ML',vote:'H'}],
+    homeStats:[{k:'avgGoals',v:'2.0',p:67},{k:'possession',v:'54%',p:54},{k:'xg',v:'1.9',p:63},{k:'cs',v:'40%',p:40}],
+    awayStats:[{k:'avgGoals',v:'2.5',p:83},{k:'possession',v:'55%',p:55},{k:'xg',v:'2.3',p:77},{k:'cs',v:'58%',p:58}],
+    homeLineup:[
+      {n:1,nm:'Alisson',p:'GK',cap:true},{n:2,nm:'Danilo',p:'RB'},{n:3,nm:'Marquinhos',p:'CB'},
+      {n:4,nm:'Gabriel Magalhães',p:'CB'},{n:6,nm:'Alex Sandro',p:'LB'},{n:5,nm:'Casemiro',p:'DM'},
+      {n:8,nm:'Lucas Paquetá',p:'CM'},{n:14,nm:'Gerson',p:'CM'},{n:10,nm:'Rodrygo',p:'RW'},
+      {n:9,nm:'Gabriel Jesus',p:'ST'},{n:11,nm:'Raphinha',p:'LW'}
+    ],
+    awayLineup:[
+      {n:23,nm:'E. Martínez',p:'GK',cap:true},{n:2,nm:'Molina',p:'RB'},{n:4,nm:'Romero',p:'CB'},
+      {n:6,nm:'Lisandro',p:'CB'},{n:3,nm:'Acuña',p:'LB'},{n:5,nm:'De Paul',p:'DM'},
+      {n:14,nm:'Mac Allister',p:'CM'},{n:20,nm:'Enzo Fernández',p:'CM'},
+      {n:11,nm:'Di María',p:'RW'},{n:9,nm:'Lautaro',p:'ST'},{n:10,nm:'Messi',p:'SS'}
+    ],
+    injuries:{
+      home:[{nm:'Vinícius Jr',pos:{az:'Sol qanadçı',en:'Left Winger'},lvl:'high',type:{az:'Şübhəli',en:'Doubtful'}}],
+      away:[{nm:'Dybala',pos:{az:'Forvard',en:'Forward'},lvl:'low',type:{az:'Ehtiyat',en:'Resting'}}]
+    }
+  },
+  {
+    id:5,date:'2026-06-21',
+    type:'intl',
+    league:{az:'Millilər — Hazırlıq oyunu',en:'International — Friendly'},
+    home:{name:{az:'Hollandiya',en:'Netherlands'},short:'NED',form:['W','W','D','W','L']},
+    away:{name:{az:'Belçika',en:'Belgium'},short:'BEL',form:['W','D','W','D','W']},
+    time:'20:45',venue:{az:'Johan Cruyff Arena, Amsterdam',en:'Johan Cruyff ArenA, Amsterdam'},
+    odds:{h:'2.10',d:'3.20',a:'3.40'},
+    ai:{home:46,draw:28,away:26,conf:'med'},
+    analysis:{
+      az:'<strong>Niderlandiya-Belçika</strong> — Avropa\'nın ən gərgin qonşu derbisi. Gakpo formasının zirvəsindədir. Belçikanın <strong>De Bruyne</strong> son sezon ağır zədə yaşayıb, oyun ritmi hələ tam deyil.',
+      en:'<strong>Netherlands vs Belgium</strong> — one of Europe\'s fiercest neighbour derbies. Gakpo is in peak form. Belgium\'s <strong>De Bruyne</strong> suffered a serious injury last season and is still not at full rhythm.'
+    },
+    models:[{name:'Opta AI',vote:'H'},{name:'StatsBomb',vote:'D'},{name:'FBref ML',vote:'H'},{name:'xG Oracle',vote:'H'},{name:'Betfair ML',vote:'D'}],
+    homeStats:[{k:'avgGoals',v:'2.1',p:70},{k:'possession',v:'55%',p:55},{k:'xg',v:'1.95',p:65},{k:'cs',v:'48%',p:48}],
+    awayStats:[{k:'avgGoals',v:'1.8',p:60},{k:'possession',v:'52%',p:52},{k:'xg',v:'1.7',p:57},{k:'cs',v:'44%',p:44}],
+    homeLineup:[
+      {n:1,nm:'Flekken',p:'GK'},{n:2,nm:'Dumfries',p:'RB'},{n:4,nm:'Van Dijk',p:'CB',cap:true},
+      {n:3,nm:'De Ligt',p:'CB'},{n:5,nm:'Blind',p:'LB'},{n:6,nm:'De Jong',p:'DM'},
+      {n:8,nm:'Wijnaldum',p:'CM'},{n:7,nm:'Koopmeiners',p:'CM'},{n:10,nm:'Depay',p:'SS'},
+      {n:9,nm:'Weghorst',p:'ST'},{n:11,nm:'Gakpo',p:'LW'}
+    ],
+    awayLineup:[
+      {n:1,nm:'Casteels',p:'GK'},{n:2,nm:'Castagne',p:'RB'},{n:5,nm:'Boyata',p:'CB'},
+      {n:4,nm:'Faes',p:'CB'},{n:3,nm:'Theate',p:'LB'},{n:6,nm:'Tielemans',p:'DM'},
+      {n:7,nm:'De Bruyne',p:'CM',cap:true},{n:8,nm:'Onana',p:'CM'},{n:11,nm:'Doku',p:'LW'},
+      {n:9,nm:'Lukaku',p:'ST'},{n:10,nm:'Trossard',p:'RW'}
+    ],
+    injuries:{
+      home:[{nm:'Memphis',pos:{az:'Forvard',en:'Forward'},lvl:'low',type:{az:'Ehtiyat',en:'Resting'}}],
+      away:[{nm:'De Bruyne',pos:{az:'Yarımmüdafiəçi',en:'Midfielder'},lvl:'med',type:{az:'Tam hazır deyil',en:'Not at full fitness'}}]
+    }
+  },
+  {
+    id:6,date:'2026-07-07',
+    type:'preseason',
+    league:{az:'Mövsüm öncəsi — UCL Keyfiyyət',en:'Pre-season — UCL Qualifying'},
+    home:{name:{az:'Marsel',en:'Marseille'},short:'OM',form:['L','W','D','L','W']},
+    away:{name:{az:'Anderlext',en:'Anderlecht'},short:'AND',form:['W','W','D','W','D']},
+    time:'19:00',venue:{az:'Vélodrome, Marsel',en:'Vélodrome, Marseille'},
+    odds:{h:'1.70',d:'3.80',a:'4.80'},
+    ai:{home:62,draw:20,away:18,conf:'med'},
+    analysis:{
+      az:'<strong>UCL Keyfiyyət turunun ilk oyunu</strong>. Marsel ev üstünlüyündən yararlanır. Anderlextdən Ayrton Lucas bu yayın ən böyük transferlərindən biridir. Ancaq Mösyö om hənuzki yeni mövsüm formasında sınaqdan çıxmayıb.',
+      en:'<strong>First UCL qualifying round.</strong> Marseille benefit from home advantage. Anderlecht\'s Ayrton Lucas is one of the summer\'s biggest transfers. But OM haven\'t yet been tested in new-season form.'
+    },
+    models:[{name:'Opta AI',vote:'H'},{name:'StatsBomb',vote:'H'},{name:'FBref ML',vote:'H'},{name:'xG Oracle',vote:'D'},{name:'Betfair ML',vote:'H'}],
+    homeStats:[{k:'avgGoals',v:'1.6',p:53},{k:'possession',v:'52%',p:52},{k:'xg',v:'1.5',p:50},{k:'cs',v:'38%',p:38}],
+    awayStats:[{k:'avgGoals',v:'1.8',p:60},{k:'possession',v:'54%',p:54},{k:'xg',v:'1.6',p:53},{k:'cs',v:'46%',p:46}],
+    homeLineup:[
+      {n:1,nm:'Pau Lopez',p:'GK'},{n:2,nm:'Clauss',p:'RB'},{n:5,nm:'Balerdi',p:'CB',cap:true},
+      {n:4,nm:'Mbemba',p:'CB'},{n:3,nm:'Lodi',p:'LB'},{n:8,nm:'Kondogbia',p:'DM'},
+      {n:18,nm:'Veretout',p:'CM'},{n:7,nm:'Harit',p:'LW'},{n:10,nm:'Ndiaye',p:'RW'},
+      {n:9,nm:'Aubameyang',p:'ST'},{n:11,nm:'Sanchez',p:'SS'}
+    ],
+    awayLineup:[
+      {n:1,nm:'Van Crombrugge',p:'GK',cap:true},{n:2,nm:'Debast',p:'RB'},{n:5,nm:'Vertonghen',p:'CB'},
+      {n:6,nm:'Simic',p:'CB'},{n:3,nm:'Murillo',p:'LB'},{n:8,nm:'Raman',p:'DM'},
+      {n:16,nm:'Arnstad',p:'CM'},{n:14,nm:'Ashimeru',p:'CM'},{n:11,nm:'Ayrton Lucas',p:'LW'},
+      {n:9,nm:'Refaelov',p:'ST'},{n:7,nm:'Stroeykens',p:'RW'}
+    ],
+    injuries:{home:[],away:[]}
+  },
+  {
+    id:7,date:'2026-07-08',
+    type:'preseason',
+    league:{az:'Mövsüm öncəsi — UCL Keyfiyyət',en:'Pre-season — UCL Qualifying'},
+    home:{name:{az:'Celtic',en:'Celtic'},short:'CEL',form:['W','W','W','D','W']},
+    away:{name:{az:'Partizan',en:'Partizan'},short:'PAR',form:['W','D','W','W','D']},
+    time:'20:00',venue:{az:'Celtic Park, Glazqo',en:'Celtic Park, Glasgow'},
+    odds:{h:'1.55',d:'4.00',a:'5.50'},
+    ai:{home:68,draw:18,away:14,conf:'high'},
+    analysis:{
+      az:'<strong>Celtic Park — Avropa\'nın ən gürültülü stadionlarından biri</strong>. Celtic son üç İskoçiya mövsümünü ardıcıl qazanıb. Partizan mövsüm öncəsi hazırlığını yenicə tamamlayıb, qonaq forması hənuz məlum deyil.',
+      en:'<strong>Celtic Park — one of Europe\'s most intimidating venues.</strong> Celtic have won the last three Scottish league titles consecutively. Partizan has just finished pre-season preparation with unknown away form.'
+    },
+    models:[{name:'Opta AI',vote:'H'},{name:'StatsBomb',vote:'H'},{name:'FBref ML',vote:'H'},{name:'xG Oracle',vote:'H'},{name:'Betfair ML',vote:'D'}],
+    homeStats:[{k:'avgGoals',v:'2.7',p:90},{k:'possession',v:'58%',p:58},{k:'xg',v:'2.4',p:80},{k:'cs',v:'60%',p:60}],
+    awayStats:[{k:'avgGoals',v:'1.5',p:50},{k:'possession',v:'48%',p:48},{k:'xg',v:'1.3',p:43},{k:'cs',v:'42%',p:42}],
+    homeLineup:[
+      {n:1,nm:'Hart',p:'GK',cap:true},{n:2,nm:'Juranovic',p:'RB'},{n:4,nm:'Carter-Vickers',p:'CB'},
+      {n:5,nm:'Starfelt',p:'CB'},{n:3,nm:'Taylor',p:'LB'},{n:6,nm:'O\'Riley',p:'DM'},
+      {n:8,nm:'McGregor',p:'CM'},{n:7,nm:'Jota',p:'LW'},{n:10,nm:'Rogic',p:'CM'},
+      {n:9,nm:'Kyogo',p:'ST'},{n:11,nm:'Maeda',p:'RW'}
+    ],
+    awayLineup:[
+      {n:1,nm:'Zivković',p:'GK',cap:true},{n:2,nm:'Menig',p:'RB'},{n:5,nm:'Natcho',p:'CB'},
+      {n:6,nm:'Milić',p:'CB'},{n:3,nm:'Umar',p:'LB'},{n:8,nm:'Jevtović',p:'DM'},
+      {n:14,nm:'Srnić',p:'CM'},{n:16,nm:'Zdjelar',p:'CM'},{n:11,nm:'Sadiq',p:'LW'},
+      {n:9,nm:'Holender',p:'ST'},{n:7,nm:'Ricardo',p:'RW'}
+    ],
+    injuries:{home:[],away:[]}
+  }
+];
+
+let selDate=fmt(today);
+let selMatch=null;
+let selTab='oracle';
+
+function setLang(l){
+  lang=l;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.textContent===l.toUpperCase()));
+  document.getElementById('seasonTxt').textContent=t('seasonEnd');
+  document.getElementById('sh-label').textContent=t('sectionLabel');
+  renderAll();
+}
+
+function renderDates(){
+  const bar=document.getElementById('dateBar');
+  const matchDays=new Set(MATCHES.map(m=>m.date));
+  bar.innerHTML=DAYS.map(d=>{
+    const ds=fmt(d);const has=matchDays.has(ds);
+    return `<div class="date-chip ${ds===selDate?'active':''} ${has?'has-match':''}" onclick="selDate='${ds}';selMatch=null;document.getElementById('detailPanel').style.display='none';renderAll()" style="${!has&&ds!==selDate?'opacity:.4':''}">
+      <span class="dc-day">${dayNameShort(d,lang)}</span>${dayNum(d)}
+    </div>`;
+  }).join('');
+}
+
+function leagueBadgeClass(type){return type==='friendly'?'friendly-badge':type==='intl'?'intl-badge':''}
+
+function renderMatches(){
+  const list=document.getElementById('matchList');
+  const day=MATCHES.filter(m=>m.date===selDate);
+  if(!day.length){
+    list.innerHTML=`<div class="empty-day"><i class="ti ti-calendar-off" aria-hidden="true"></i><p>${t('noMatch')}</p><small>${t('noMatchSub')}</small></div>`;
+    return;
+  }
+  list.innerHTML=day.map(m=>{
+    const hn=m.home.name[lang];const an=m.away.name[lang];
+    const aiPick=m.ai?(m.ai.home>m.ai.away?m.home.short:m.away.short):null;
+    const typeLabel=t(m.type);
+    return `<div class="match-card ${selMatch===m.id?'active':''} ${m.type==='friendly'?'friendly':''}" onclick="openMatch(${m.id})">
+      <div class="mc-top">
+        <span class="mc-league ${leagueBadgeClass(m.type)}">${m.league[lang]}</span>
+        <span class="mc-time">${m.time}</span>
+      </div>
+      <div class="mc-body">
+        <div class="mc-team">
+          <div class="mc-team-name">${hn}</div>
+          <div class="mc-team-form">${m.home.form.map(f=>`<div class="ff ${f}">${f}</div>`).join('')}</div>
+        </div>
+        <div class="mc-score-box"><div class="mc-vs">vs</div></div>
+        <div class="mc-team">
+          <div class="mc-team-name">${an}</div>
+          <div class="mc-team-form">${m.away.form.map(f=>`<div class="ff ${f}">${f}</div>`).join('')}</div>
+        </div>
+      </div>
+      <div class="mc-footer">
+        ${m.odds?`<div class="mc-odds"><span class="odd-chip">1:${m.odds.h}</span><span class="odd-chip">X:${m.odds.d}</span><span class="odd-chip">2:${m.odds.a}</span></div>`:`<span class="no-odds">${t('noOdds')}</span>`}
+        ${aiPick?`<div class="mc-ai-badge"><i class="ti ti-brain" aria-hidden="true"></i>AI:${aiPick}</div>`:`<div class="mc-ai-badge" style="background:#f5f5f5;color:#888;border-color:#ddd"><i class="ti ti-minus" aria-hidden="true"></i>${typeLabel}</div>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openMatch(id){
+  if(selMatch===id){selMatch=null;document.getElementById('detailPanel').style.display='none';renderMatches();return}
+  selMatch=id;selTab='oracle';
+  renderMatches();renderDetail();
+  document.getElementById('detailPanel').style.display='block';
+}
+
+function renderDetail(){
+  const m=MATCHES.find(x=>x.id===selMatch);
+  if(!m)return;
+  const tabs=[
+    {k:'oracle',label:t('aiTab'),icon:'ti-brain'},
+    {k:'stats',label:t('statsTab'),icon:'ti-chart-bar'},
+    {k:'lineups',label:t('lineupsTab'),icon:'ti-list'},
+    {k:'injuries',label:t('injTab'),icon:'ti-first-aid-kit'},
+  ];
+  document.getElementById('detailPanel').innerHTML=`<div class="detail-panel">
+    <div class="dtabs">${tabs.map(tb=>`<div class="dtab ${selTab===tb.k?'active':''}" onclick="switchDTab('${tb.k}')">${tb.label}</div>`).join('')}</div>
+    <div class="dp-body" id="dpBody"></div>
+  </div>`;
+  renderTabContent(m);
+}
+
+function switchDTab(k){
+  selTab=k;
+  const m=MATCHES.find(x=>x.id===selMatch);
+  if(!m)return;
+  document.querySelectorAll('.dtab').forEach((d,i)=>{
+    const ks=['oracle','stats','lineups','injuries'];
+    d.classList.toggle('active',ks[i]===k);
+  });
+  renderTabContent(m);
+}
+
+function renderTabContent(m){
+  const body=document.getElementById('dpBody');
+  if(!body)return;
+  if(selTab==='oracle')body.innerHTML=oracleHTML(m);
+  else if(selTab==='stats')body.innerHTML=statsHTML(m);
+  else if(selTab==='lineups')body.innerHTML=lineupsHTML(m);
+  else body.innerHTML=injuriesHTML(m);
+}
+
+function oracleHTML(m){
+  if(!m.ai){
+    return `<div class="friendly-note"><i class="ti ti-info-circle" aria-hidden="true"></i><div><strong>${t('noPred')}</strong><p style="margin-top:4px;font-size:11px">${t('noPredSub')}</p></div></div>`;
+  }
+  const confLabel=m.ai.conf==='high'?t('highConf'):t('medConf');
+  const stars=m.ai.conf==='high'?'★★★★★':'★★★☆☆';
+  return `<div>
+    <div class="oracle-title"><i class="ti ti-brain" aria-hidden="true"></i>${t('oracle')}</div>
+    <div class="oracle-sub">${t('aiSub')} — ${m.models?m.models.length:0} ${lang==='az'?'model':'models'}</div>
+    <div class="conf-badge">${stars} ${confLabel}</div>
+    <div class="prob-track">
+      <div class="prob-seg ph" style="flex:${m.ai.home}">${m.ai.home}%</div>
+      <div class="prob-seg pd" style="flex:${m.ai.draw}">${m.ai.draw}%</div>
+      <div class="prob-seg pa" style="flex:${m.ai.away}">${m.ai.away}%</div>
+    </div>
+    <div class="prob-lbls">
+      <div class="pl ph"><span class="pl-pct">${m.ai.home}%</span>${m.home.short}</div>
+      <div class="pl pd"><span class="pl-pct">${m.ai.draw}%</span>${lang==='az'?'Bərabər':'Draw'}</div>
+      <div class="pl pa"><span class="pl-pct">${m.ai.away}%</span>${m.away.short}</div>
+    </div>
+    <div class="analysis-box">
+      <div class="analysis-lbl">${t('analysis')}</div>
+      <div class="analysis-txt">${m.analysis[lang]}</div>
+    </div>
+    ${m.models?`<div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px">${t('models')}</div>
+    <div class="models-row">${m.models.map(md=>`<div class="model-chip">${md.name}<span class="model-vote vote-${md.vote}">${md.vote==='H'?m.home.short:md.vote==='A'?m.away.short:(lang==='az'?'BƏR':'DRW')}</span></div>`).join('')}</div>`:''}
+    ${m.odds?`<div class="odds-row">
+      <div class="odd-big oh"><div class="odd-big-lbl">${m.home.short}</div><div class="odd-big-val">${m.odds.h}</div></div>
+      <div class="odd-big od"><div class="odd-big-lbl">${lang==='az'?'Bərabər':'Draw'}</div><div class="odd-big-val">${m.odds.d}</div></div>
+      <div class="odd-big oa"><div class="odd-big-lbl">${m.away.short}</div><div class="odd-big-val">${m.odds.a}</div></div>
+    </div>`:''}
+  </div>`;
+}
+
+function statsHTML(m){
+  function formPts(form){return form.filter(x=>x==='W').length*3+form.filter(x=>x==='D').length}
+  function pBar(pts,col){return `<div class="pts-row"><div class="pts-trk"><div class="pts-fill" style="width:${Math.round(pts/15*100)}%;background:${col}"></div></div><div class="pts-lbl" style="color:${col}">${pts}/15</div></div>`}
+  const hPts=formPts(m.home.form),aPts=formPts(m.away.form);
+  const hCol=hPts>10?'#1a7a3c':hPts>6?'#b7750a':'#c0392b';
+  const aCol=aPts>10?'#1a7a3c':aPts>6?'#b7750a':'#c0392b';
+  const statK=['avgGoals','possession','xg','cs'];
+  function sRows(stats,col){
+    if(!stats)return`<p style="font-size:12px;color:var(--txt3);padding:8px 0">${lang==='az'?'Statistika mövcud deyil':'Stats not available'}</p>`;
+    return stats.map(s=>`<div class="stat-r"><div class="stat-lbl">${t(s.k)}</div><div class="stat-bw"><div class="stat-bf" style="width:${s.p}%;background:${col}"></div></div><div class="stat-val" style="color:${col}">${s.v}</div></div>`).join('');
+  }
+  return `<div>
+    <div class="form-lbl">${t('form')}</div>
+    <div class="form-row"><div class="form-name">${m.home.short}</div><div class="form-dots">${m.home.form.map(f=>`<div class="fd2 ${f}">${f}</div>`).join('')}</div></div>
+    ${pBar(hPts,hCol)}
+    <div class="form-row"><div class="form-name">${m.away.short}</div><div class="form-dots">${m.away.form.map(f=>`<div class="fd2 ${f}">${f}</div>`).join('')}</div></div>
+    ${pBar(aPts,aCol)}
+    <div class="stat-section-title">${t('homePerf')} — ${m.home.short}</div>
+    ${sRows(m.homeStats,'#1a7a3c')}
+    <div class="stat-section-title">${t('awayPerf')} — ${m.away.short}</div>
+    ${sRows(m.awayStats,'#2980b9')}
+  </div>`;
+}
+
+function lineupsHTML(m){
+  const pl=lineup=>`<div class="lineup-title">${m[lineup==='home'?'home':'away'].name[lang]}</div>${m[lineup+'Lineup'].map(p=>`<div class="player-r"><div class="pl-num">${p.n}</div><div class="pl-name">${p.nm}${p.cap?' <span class="pl-cap">©</span>':''}</div><div class="pl-pos">${p.p}</div></div>`).join('')}`;
+  return `<div>${pl('home')}<div class="lineup-sub">${pl('away')}</div></div>`;
+}
+
+function injuriesHTML(m){
+  function injList(list){
+    if(!list||!list.length)return`<div style="font-size:12px;color:var(--txt3);padding:6px 0">${t('noAbsence')}</div>`;
+    return list.map(p=>`<div class="inj-item ${p.lvl}"><div style="flex:1"><div class="inj-name">${p.nm}</div><span class="inj-pos">${p.pos[lang]}</span></div><span class="inj-badge ${p.lvl}">${p.type[lang]}</span></div>`).join('');
+  }
+  return `<div class="inj-list">
+    <div class="inj-section">${m.home.name[lang]}</div>${injList(m.injuries.home)}
+    <div class="inj-section">${m.away.name[lang]}</div>${injList(m.injuries.away)}
+  </div>`;
+}
+
+function renderAll(){renderDates();renderMatches();if(selMatch)renderDetail()}
+renderAll();
+</script>
